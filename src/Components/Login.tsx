@@ -3,18 +3,14 @@ import { useNavigate } from "react-router-dom";
 import {
   MDBContainer,
   MDBInput,
-  MDBCheckbox,
   MDBBtn,
   MDBIcon,
-  MDBTabsItem,
   MDBRow,
   MDBCol,
   MDBCard,
   MDBCardHeader,
   MDBCardBody,
   MDBCardFooter,
-  MDBInputGroup,
-  MDBTextArea,
 } from "mdb-react-ui-kit";
 
 export default function Login() {
