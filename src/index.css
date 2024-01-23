@@ -14,18 +14,26 @@ code {
 .forumPage {
   display: flex;
   width: 100%;
+  margin-inline:50px;
 }
 .forumCol1 {
-  width: 60%;
+  width: 50%;
 }
 .forumCol2 {
-  width: 40%;
+  width: 50%;
+  margin-block:60px
 }
 .postForum h1 {
   color: rgb(30, 138, 120);
   text-align: center;
-  margin-block: 55px;
+  margin-inline:150px
 }
+
+h1 {
+  color: rgb(30, 138, 120);
+  text-align: center;
+}
+
 
 @media screen and (max-width: 750px) {
   .forumCol1 {

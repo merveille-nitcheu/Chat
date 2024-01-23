@@ -1,4 +1,5 @@
 import React,{ useEffect, useState ,SetStateAction,Dispatch} from 'react'
+import { useNavigate } from "react-router-dom";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -8,6 +9,8 @@ import Avatar from '@mui/material/Avatar';
 import red from '@mui/material/colors/red';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Button from '@mui/material/Button';
+import SendIcon from '@mui/icons-material/Send';
 
 
 import Box from '@mui/material/Box';
@@ -30,6 +33,8 @@ interface ChatProps {
 
 export default function MenuCard(props: ChatProps) {
 
+  const navigate = useNavigate();
+
   
   useEffect(() => {
     if (props.userName) {
@@ -39,22 +44,33 @@ export default function MenuCard(props: ChatProps) {
         }
     }
 }, [props.userName]);
+
+const handleLeaveChat = () => {
+  localStorage.removeItem("Messages")
+  localStorage.removeItem("Commentaire")
+  localStorage.removeItem("userName")
+  navigate("/");
+  window.location.reload();
+};
+
   return (
-    <Card sx={{ maxWidth: 475, my: 10 }}>
+    <Card sx={{ maxWidth:600, ml:2 }}>
+
+      
+      
+
     <CardActionArea>
       <CardContent>
-      <h1 className="ask">Nos Questions Récentes</h1> 
+      <h1 className="ask" style={{ textDecoration: "underline"}}>Our Recents Questions </h1>
 
-        <Card
-                sx={{
-                    maxWidth: 800,
-                    mx: 4,
-                    my: 8,
-                    /* backgroundColor: 'secondary.main', */
-                }}
-            >
+        
         {props.chat.filter((message) => message.userName !== props.userName).map((message, index) => 
-              <>
+              <Card
+              sx={{ mx: 4,
+                  my: 8,
+                  /* backgroundColor: 'secondary.main', */
+              }}
+          >
 
               <CardHeader key={index}
                     avatar={
@@ -64,7 +80,6 @@ export default function MenuCard(props: ChatProps) {
                     }
                     action={
                         <IconButton aria-label="settings">
-                            <MoreVertIcon />
                         </IconButton>
                     }
                     title={message.userName}
@@ -73,18 +88,17 @@ export default function MenuCard(props: ChatProps) {
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                     <CardContent>
                         <Typography variant="body2" color="text.secondary">
-                            {message.content.toString()}
+                            {message.content?.toString()}
                         </Typography>
                     </CardContent>
                 </Box>
-              </>
                 
 
 
-
+                </Card>
              
             )}
-            </Card>
+           
       </CardContent>
     </CardActionArea>
   </Card>

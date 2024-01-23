@@ -33,32 +33,7 @@ export default function SubmitForm(props: ChatProps) {
       const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (props.message!==null && props.userName) {
-          if (props.Index !== null) {
-            // Mettre à jour le texte du message existant 
-            const updatedChat = [...props.chat];
-            updatedChat[props.Index].content = props.message;
-            updatedChat[props.Index].datePosted = new Date().toLocaleString();
-            props.setChat(updatedChat);
-            props.setIndex(null);
-           
-            localStorage.setItem("Messages", JSON.stringify(updatedChat));
-            props.setMessage("");
-          // } else if (props.IndexComment !== null) {
-          //   const chatToComment = props.chat[props.IndexComment];
-    
-          //   const NewComment: ChatMessage = {
-          //     userName: props.userName || "",
-          //     datePosted :new Date().toLocaleString(),
-          //     likes:null,
-          //     content: props.message,
-          //     numComments:null
-          //   };
-          //   props.setChat((prevChat) => [...prevChat, NewComment]);
-            
-          //   localStorage.setItem("Messages", JSON.stringify([...props.chat, NewComment]));
-          //   props.setMessage("");
-    
-          } else {
+         
     
             // Envoyer un nouveau message
             const newChat: ChatMessage = {
@@ -75,7 +50,7 @@ export default function SubmitForm(props: ChatProps) {
             localStorage.setItem("Messages", JSON.stringify([...props.chat, newChat]));
             props.setMessage("");
     
-          }
+         
         }
     
       };
@@ -89,10 +64,9 @@ export default function SubmitForm(props: ChatProps) {
           label="Ask a Question"
           multiline
           rows={4}
-          value={props.message}
           variant="filled"
           fullWidth
-          sx={{ maxWidth: 740, mx: 4 }}
+          sx={{ width: 630, mx: 4 }}
           name="message"
           onChange={(e) => props.setMessage(e.target.value)}
         />
@@ -104,7 +78,7 @@ export default function SubmitForm(props: ChatProps) {
             type="submit"
             sx={{ mx: 4, my: 2 }}
           >
-            {props.Index!==null ? "Mettre à jour" : "Envoyer"}
+           Envoyer
             
           </Button>
         </div>

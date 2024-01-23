@@ -25,7 +25,9 @@ import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
 import Chat from "./Chat";
-import { DeleteOutline, Edit } from "@mui/icons-material";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { DeleteOutline, Edit, IndeterminateCheckBox } from "@mui/icons-material";
 
 
 interface ChatMessage {
@@ -43,6 +45,7 @@ interface ChatProps {
     setChat: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
     message: string | null;
     IndexComment: number | null;
+    Index: number | null;
     setMessage: React.Dispatch<React.SetStateAction<string | "">>
     setIndex: React.Dispatch<React.SetStateAction<number | null>>
     setIndexComment: React.Dispatch<React.SetStateAction<number | null>>
@@ -54,21 +57,15 @@ interface ChatProps {
 
 
 
-const ExpandMore = styled((props: { expand: boolean; onClick: () => void }) => {
-    const { expand, ...other } = props;
-    return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    }),
-}));
 
 
 export default function CardContainer(props: ChatProps) {
     const [expanded, setExpanded] = React.useState(false);
-    const [commentaire, setCommentaire] = useState<string|"">("");
+    const [expandedUpdate, setExpandedUpdate] = React.useState(false);
+    const [commentaire, setCommentaire] = useState<string | "">("");
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+    const [messageUpdated, setMessageUpdated] = useState<string | "">("");
 
 
 
@@ -88,12 +85,24 @@ export default function CardContainer(props: ChatProps) {
         }
         console.log(props.comment)
     }, [userName]);
-    
+
 
 
     const handleExpandClick = (index: number) => {
         setExpanded(!expanded);
         props.setIndexComment(index);
+    };
+
+    const handleExpandClickUpdate = (index: number) => {
+        setExpandedUpdate(!expandedUpdate);
+        props.setIndex(index);
+        if (props.message!==null) {
+            const updatedChat = [...props.chat];
+        const chatToUpdate = updatedChat[index];
+            
+            setMessageUpdated(chatToUpdate.content)
+        }
+        
     };
 
     // To add a new like
@@ -115,34 +124,34 @@ export default function CardContainer(props: ChatProps) {
 
     };
     // To add a new comment
-    const addComment = (index:number) => {
+    const addComment = (index: number) => {
         const newChat = [...props.chat];
-    const chatToAddComment = newChat[index];
+        const chatToAddComment = newChat[index];
 
-    if (chatToAddComment) {
-        const newCommentaire: ChatMessage = {
-            userName: userName || "",
-            datePosted :new Date().toLocaleString(),
-            likes:null,
-            content: commentaire,
-            numComments:null
+        if (chatToAddComment) {
+            const newCommentaire: ChatMessage = {
+                userName: userName || "",
+                datePosted: new Date().toLocaleString(),
+                likes: null,
+                content: commentaire,
+                numComments: null
 
-          };
+            };
 
-          if (chatToAddComment.numComments=== null) {
-            chatToAddComment.numComments = 1;
-        } else {
-            chatToAddComment.numComments += 1;
+            if (chatToAddComment.numComments === null) {
+                chatToAddComment.numComments = 1;
+            } else {
+                chatToAddComment.numComments += 1;
+            }
+
+            props.setChat(newChat);
+            props.setComment(prevComment => [...prevComment, newCommentaire]);
+            localStorage.setItem("Messages", JSON.stringify(newChat));
+            localStorage.setItem("Commentaire", JSON.stringify([...(props.comment), newCommentaire]));
+            setCommentaire("")
+            console.log(props.comment)
         }
 
-        props.setChat(newChat);
-        props.setComment(prevComment => [...prevComment, newCommentaire]);
-        localStorage.setItem("Messages", JSON.stringify(newChat));
-        localStorage.setItem("Commentaire", JSON.stringify([...(props.comment), newCommentaire]));
-        setCommentaire("")
-        console.log(props.comment)
-    }
-   
 
     };
     const handleDeleteMessage = (index: number) => {
@@ -160,13 +169,24 @@ export default function CardContainer(props: ChatProps) {
 
 
     const handleUpdateMessage = (index: number) => {
-        const chatToUpdate = props.chat[index];
-        const loggedInUserName = userName;
+        const updatedChat = [...props.chat];
+        const chatToUpdate = updatedChat[index];
 
-        if (chatToUpdate.userName === loggedInUserName) {
-            props.setIndex(index);
-            props.setMessage(chatToUpdate.content);
+        console.log(props.message)
+        if (props.message!==null) {
+            
+            chatToUpdate.content = messageUpdated;
+           
+            chatToUpdate.datePosted = new Date().toLocaleString();
+            props.setChat(updatedChat);
+            props.setIndex(null);
+
+            localStorage.setItem("Messages", JSON.stringify(updatedChat));
+            props.setMessage("");
+            setExpandedUpdate(false);
+
         }
+
     };
     const handleCommentMessage = (index: number) => {
         const chatToComment = props.chat[index];
@@ -177,6 +197,45 @@ export default function CardContainer(props: ChatProps) {
 
 
     };
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, index: number) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedIndex(index)
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setSelectedIndex(null)
+    };
+
+    const isMenuOpen = Boolean(anchorEl);
+
+    const renderMenu = (
+        <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            id="menu-appbar"
+            keepMounted
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+        >
+            <div>
+                <MenuItem onClick={() => handleExpandClickUpdate(selectedIndex ?? 0)}>
+                    <IconButton aria-label="share">
+                        <Edit color="primary" />
+                    </IconButton>
+                    Modifier
+                </MenuItem>
+                <MenuItem onClick={() => handleDeleteMessage(selectedIndex ?? 0)}>
+                    <IconButton aria-label="share">
+                        <DeleteOutline color="primary" />
+                    </IconButton>
+                    Supprimer
+                </MenuItem>
+            </div>
+        </Menu>
+    );
 
     return (
         <div className="forumCards">
@@ -195,25 +254,35 @@ export default function CardContainer(props: ChatProps) {
                         </Avatar>
                     }
                     action={
-                        <IconButton aria-label="settings">
-                            <MoreVertIcon />
-                        </IconButton>
+                        <>
+
+                            {message.userName === userName ? (
+                                <>
+
+                                    <IconButton
+                                        aria-label="settings"
+                                        aria-controls="menu-appbar"
+                                        aria-haspopup="true"
+                                        onClick={(event) => handleMenuOpen(event, index)}
+                                        color="inherit"
+                                    >
+                                        <MoreVertIcon />
+                                    </IconButton>
+                                    {renderMenu}
+                                </>
+                            ) : <></>}
+
+                        </>
+
                     }
                     title={message.userName}
                     subheader={`publié le ${message.datePosted}`}
                 />
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                    {/* <CardMedia
-  
-          component="img"
-          height="150"
-          image={img2}
-          alt="Paella dish"
-          sx={{ m: 0.5 }}
-        /> */}
+
                     <CardContent>
-                        <Typography variant="body2" color="text.secondary">
-                            {message.content.toString()}
+                        <Typography variant="subtitle1" color="text.secondary">
+                            {message.content?.toString()}
                         </Typography>
                     </CardContent>
                 </Box>
@@ -227,85 +296,106 @@ export default function CardContainer(props: ChatProps) {
                     </IconButton>
 
 
-                    {/* <IconButton aria-label="like">
-              <FavoriteIcon color="primary" />
-            </IconButton> */}
-
                     <IconButton aria-label="comment" onClick={() => handleExpandClick(index)}>
                         <Badge badgeContent={message.numComments} color="primary">
                             <ChatBubbleOutlineOutlinedIcon color="primary" />
                         </Badge>
                     </IconButton>
-                    {message.userName === userName ? (
-                        <>
-                            <IconButton aria-label="share" onClick={() => handleUpdateMessage(index)}>
-                                <Edit color="primary" />
-                            </IconButton>
-                            <IconButton aria-label="share" onClick={() => handleDeleteMessage(index)}>
-                                <DeleteOutline color="primary" />
-                            </IconButton>    </>
-                    ) : <></>}
+
 
 
 
                 </CardActions>
 
+                
+                    <Collapse in={expandedUpdate} timeout="auto" unmountOnExit>
+                        <CardContent>
+                            <Typography paragraph>Modifier le Message:</Typography>
+                            <div style={{ display: "flex" }}>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    variant="filled"
+                                    id="message"
+                                    label="Modifier votre mesage"
+                                    name="message"
+                                    autoFocus
+                                    value={messageUpdated}
+                                    onChange={(e) => setMessageUpdated(e.target.value)}
+                                />
+                                <Button
+                                    variant="contained"
+                                    onClick={() => handleUpdateMessage(index)}
+
+                                    endIcon={<SendIcon />}
+                                    type="submit"
+                                    sx={{ mx: 2, px: 5, my: 2 }}
+                                >
+                                    Modifier
+
+                                </Button>
+
+                            </div>
+
+                        </CardContent>
+                    </Collapse> 
+
                 {index === props.IndexComment ?
                     (<Collapse in={expanded} timeout="auto" unmountOnExit>
                         <CardContent>
                             <Typography paragraph>Comments:</Typography>
-                            <div style={{display:"flex"}}> 
+                            <div style={{ display: "flex" }}>
                                 <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                variant="filled"
-                                id="comment"
-                                label="laisser un comment"
-                                name="comment"
-                                autoFocus
-                                value={commentaire}
-                                onChange={(e) => setCommentaire(e.target.value)}
-                            />
-                            <Button
-                                variant="contained"
-                                onClick={() => addComment(index)}
-                               
-                                endIcon={<SendIcon />}
-                                type="submit"
-                                sx={{ mx: 2,px:5 ,my:2}}
-                            >
-                                Commenter
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    variant="filled"
+                                    id="comment"
+                                    label="laisser un comment"
+                                    name="comment"
+                                    autoFocus
+                                    value={commentaire}
+                                    onChange={(e) => setCommentaire(e.target.value)}
+                                />
+                                <Button
+                                    variant="contained"
+                                    onClick={() => addComment(index)}
 
-                            </Button>
+                                    endIcon={<SendIcon />}
+                                    type="submit"
+                                    sx={{ mx: 2, px: 5, my: 2 }}
+                                >
+                                    Commenter
+
+                                </Button>
 
                             </div>
                             {message.numComments ? (
-            <div>
-                {Array.isArray(props.comment) && props.comment?.map((comment, commentIndex) => (
-                    <>
-                    <CardHeader key={index}
-                    avatar={
-                        <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                            {comment.userName[0]}
-                        </Avatar>
-                    }
-                    action={
-                        <IconButton aria-label="settings">
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
-                    title={comment.userName}
-                    subheader={`publié le ${comment.datePosted}`}
-                />
-                    <p key={commentIndex}>{comment.content}</p>
-                    </>
-                    
-                ))}
-            </div>
-        ) : (
-            <p style={{ marginBlock: "10px" }}>There are no comments to display!</p>
-        )}
+                                <div>
+                                    {Array.isArray(props.comment) && props.comment?.map((comment, commentIndex) => (
+                                        <>
+                                            <CardHeader key={index}
+                                                avatar={
+                                                    <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+                                                        {comment.userName[0]}
+                                                    </Avatar>
+                                                }
+                                                action={
+                                                    <IconButton aria-label="settings">
+                                                    </IconButton>
+                                                }
+                                                title={comment.userName}
+                                                subheader={`publié le ${comment.datePosted}`}
+                                            />
+                                            <p key={commentIndex}>{comment.content}</p>
+                                        </>
+
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{ marginBlock: "10px" }}>There are no comments to display!</p>
+                            )}
                         </CardContent>
                     </Collapse>) : <></>}
             </Card>)}
