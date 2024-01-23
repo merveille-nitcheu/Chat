@@ -11,3 +11,35 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.forumPage {
+  display: flex;
+  width: 100%;
+}
+.forumCol1 {
+  width: 60%;
+}
+.forumCol2 {
+  width: 40%;
+}
+.postForum h1 {
+  color: rgb(30, 138, 120);
+  text-align: center;
+  margin-block: 55px;
+}
+
+@media screen and (max-width: 750px) {
+  .forumCol1 {
+    width: 100%;
+  }
+  .forumCol2 {
+    width: 75%;
+  }
+  .askQuestionForm {
+    width: 87%;
+  }
+  .forumPage {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+}
